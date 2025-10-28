@@ -11,13 +11,13 @@ public class LoginPage_PO {
 
 	// --- Locators using XPath ---
 	@FindBy(xpath = "//input[@id='user-name']")
-	WebElement text_username;
+	public WebElement text_username;
 
 	@FindBy(xpath = "//input[@id='password']")
-	WebElement text_password;
+	public WebElement text_password;
 
 	@FindBy(xpath = "//input[@id='login-button']")
-	WebElement login_btn;
+	public WebElement login_btn;
 
 	// --- Constructor ---
 	public LoginPage_PO(WebDriver driver) {
