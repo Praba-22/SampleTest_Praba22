@@ -1,4 +1,4 @@
-@LoginModule
+
 Feature: Login Module
   To verify that users can log in with valid and invalid credentials.
 
@@ -10,9 +10,13 @@ Feature: Login Module
     Then User should be redirected to the homepage
 
     Examples:
-      | username   | password     |
-      | testuser1  | password123  |
-      | testuser2  | password456  |
+      | username                | password      |
+      | standard_user           | secret_sauce  |
+      | locked_out_user         | secret_sauce  |
+      | problem_user            | secret_sauce  |
+      | performance_glitch_user | secret_sauce  |
+      | error_user              | secret_sauce  |
+      | visual_user             | secret_sauce  |
 
   @regression 
   Scenario Outline: Unsuccessful login with invalid credentials
