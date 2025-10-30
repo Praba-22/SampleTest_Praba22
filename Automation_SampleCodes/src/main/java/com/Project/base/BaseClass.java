@@ -2,6 +2,7 @@ package com.Project.base;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -16,6 +17,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.poi.ss.usermodel.*;
@@ -26,31 +29,53 @@ public class BaseClass {
 	public static WebDriver driver;
 	public static ExtentReports extent;
 	public static ExtentTest test;
+	public static ChromeOptions options;
 
 	// ----------------- Browser Launch -----------------
 	public static void launchBrowser(String browser, String Url) {
-		if (driver == null) {
-			switch (browser.toLowerCase()) {
-			case "chrome":
-				WebDriverManager.chromedriver().setup();
-				driver = new ChromeDriver();
-				break;
-			case "firefox":
-				WebDriverManager.firefoxdriver().setup();
-				driver = new FirefoxDriver();
-				break;
-			case "edge":
-				WebDriverManager.edgedriver().setup();
-				driver = new EdgeDriver();
-				break;
-			default:
-				System.out.println("Browser not supported, launching Chrome by default.");
-				driver = new ChromeDriver();
-			}
-			driver.manage().window().maximize();
-			driver.get(Url);
-		}
-	}
+	    if (driver == null) {
+	        switch (browser.toLowerCase()) {
+	        case "chrome":
+	            WebDriverManager.chromedriver().setup();
+	            ChromeOptions options = new ChromeOptions();
+
+	            // ✅ Disable Chrome notifications, password manager popups, and save-password prompts
+	            Map<String, Object> prefs = new HashMap<>();
+	            prefs.put("profile.default_content_setting_values.notifications", 2); // Block notifications
+	            prefs.put("credentials_enable_service", false); // Disable password manager
+	            prefs.put("profile.password_manager_enabled", false); // Disable "Save password" popup
+
+	            options.setExperimentalOption("prefs", prefs);
+
+	            // Optional: disable automation info bar and extensions
+	            options.addArguments("--disable-notifications");
+	            options.addArguments("--disable-save-password-bubble");
+	            options.addArguments("--disable-infobars");
+	            options.addArguments("--disable-extensions");
+	            options.addArguments("--start-maximized");
+
+	            driver = new ChromeDriver(options);
+	            break;
+
+	        case "firefox":
+	            WebDriverManager.firefoxdriver().setup();
+	            driver = new FirefoxDriver();
+	            break;
+
+	        case "edge":
+	            WebDriverManager.edgedriver().setup();
+	            driver = new EdgeDriver();
+	            break;
+
+	        default:
+	            System.out.println("Browser not supported, launching Chrome by default.");
+	            WebDriverManager.chromedriver().setup();
+	            driver = new ChromeDriver();
+	        }
+
+	        driver.manage().window().maximize();
+	        driver.get(Url);
+	}}
 
 	// ----------------- Waits -----------------
 	public static void waitForElementVisible(WebElement element, int seconds) {
@@ -104,6 +129,24 @@ public class BaseClass {
 			e.printStackTrace();
 		}
 		return value;
+	}
+	
+	
+	//---------- Chrome Notifications---------
+	
+	public void Notifications() {
+		ChromeOptions options = new ChromeOptions();
+
+        // Disable password manager popup
+        Map<String, Object> prefs = new HashMap<>();
+        prefs.put("credentials_enable_service", false);
+        prefs.put("profile.password_manager_enabled", false);
+        options.setExperimentalOption("prefs", prefs);
+
+        // Optional: disable infobars
+        options.addArguments("--disable-infobars");
+        options.addArguments("--disable-notifications");
+        options.addArguments("--disable-save-password-bubble");
 	}
 
 	// ----------------- Close Browser -----------------
