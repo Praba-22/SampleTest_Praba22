@@ -5,111 +5,117 @@ import org.testng.Assert;
 import com.Project.base.*;
 import io.cucumber.java.en.*;
 import com.Project.pages.*;
+import com.project.utilities.ExcelWriter;
 
 public class LoginSteps extends BaseClass {
-    LoginPage_PO login_page;
-    Alert alert;
+	LoginPage_PO login_page;
+	Alert alert;
+	ExcelWriter xlread;
 
-    // ✅ Step 1: Open browser and verify login page
-    @Given("User is on the login page")
-    public void user_is_on_the_login_page() {
-        try {
-            // Launch browser and navigate to URL
-            launchBrowser("chrome", "https://www.saucedemo.com/");
+	// ✅ Step 1: Open browser and verify login page
+	@Given("User is on the login page")
+	public void user_is_on_the_login_page() {
+		try {
+			// Launch browser and navigate to URL
+			launchBrowser("chrome", "https://www.saucedemo.com/");
 
-            // Initialize page object AFTER browser launch
-            login_page = new LoginPage_PO(driver);
+			// Initialize page object AFTER browser launch
+			login_page = new LoginPage_PO(driver);
 
-            // Validate title
-            String expectedTitle = "Swag Labs";
-            String actualTitle = driver.getTitle(); // ❌ You used getPageSource() earlier (wrong)
+			// Validate title
+			String expectedTitle = "Swag Labs";
+			String actualTitle = driver.getTitle(); // ❌ You used getPageSource() earlier (wrong)
 
-            if (actualTitle.equalsIgnoreCase(expectedTitle)) {
-                takeScreenshot("LoginPage");
-                test.pass("User is on the login page.");
-            } else {
-                takeScreenshot("LoginPage_Failed");
-                test.fail("Login page title mismatch! Expected: " + expectedTitle + " | Found: " + actualTitle);
-                Assert.fail("Login page validation failed - Title mismatch.");
-            }
+			if (actualTitle.equalsIgnoreCase(expectedTitle)) {
+				takeScreenshot("LoginPage");
+				test.pass("User is on the login page.");
+			} else {
+				takeScreenshot("LoginPage_Failed");
+				test.fail("Login page title mismatch! Expected: " + expectedTitle + " | Found: " + actualTitle);
+				Assert.fail("Login page validation failed - Title mismatch.");
+			}
 
-        } catch (Exception e) {
-            test.fail("Exception while verifying login page: " + e.getMessage());
-            takeScreenshot("LoginPage_Failed");
-            Assert.fail("Login page validation failed due to exception: " + e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			test.fail("Exception while verifying login page: " + e.getMessage());
+			takeScreenshot("LoginPage_Failed");
+			Assert.fail("Login page validation failed due to exception: " + e.getMessage());
+		}
+	}
 
-    // ✅ Step 2: Enter credentials
-    @When("User enters username {string} and password {string}")
-    public void user_enters_username_and_password(String username, String password) {
-        try {
-            waitForElementVisible(login_page.text_username, 10);
-            Thread.sleep(500);
-            login_page.enterusername(username);
+	// ✅ Step 2: Enter credentials
+	@When("User enters username {string} and password {string}")
+	public void user_enters_username_and_password(String username, String password) {
+		try {
+			// waitForElementVisible(login_page.text_username, 10);
+			Thread.sleep(500);
 
-            waitForElementVisible(login_page.text_password, 10);
-            Thread.sleep(500);
-            login_page.enterpassword(password);
+			login_page.enterusername(username);
+			getExcelData("", "Credentials", 1, 0);
 
-            test.pass("User entered username and password successfully.");
-            takeScreenshot("EnterCredentials_Passed");
+			Thread.sleep(500);
 
-        } catch (Exception e) {
-            test.fail("Failed to enter credentials: " + e.getMessage());
-            takeScreenshot("EnterCredentials_Failed");
-            Assert.fail("Credentials entry failed.");
-        }
-    }
+			login_page.enterpassword(password);
+			getExcelData("", "Credentials", 1, 1);
+			// waitForElementVisible(login_page.text_password, 10);
+			Thread.sleep(500);
 
-    // ✅ Step 3: Click login
-    @When("User clicks on the login button")
-    public void user_clicks_on_the_login_button() {
-        try {
-            waitForElementClickable(login_page.login_btn, 10);
-            login_page.click_login();
-            test.pass("User clicks on the login button.");
+			test.pass("User entered username and password successfully.");
+			takeScreenshot("EnterCredentials_Passed");
 
-            // Handle Chrome popups (password save / notifications)
-            try {
-                Notifications();
-            } catch (Exception ne) {
-                test.info("No browser popup appeared after login.");
-            }
+		} catch (Exception e) {
+			test.fail("Failed to enter credentials: " + e.getMessage());
+			takeScreenshot("EnterCredentials_Failed");
+			Assert.fail("Credentials entry failed.");
+		}
+	}
 
-        } catch (Exception e) {
-            test.fail("Login button click failed: " + e.getMessage());
-            takeScreenshot("LoginClick_Failed");
-            Assert.fail("Login button not clicked.");
-        }
-    }
+	// ✅ Step 3: Click login
+	@When("User clicks on the login button")
+	public void user_clicks_on_the_login_button() {
+		try {
+			waitForElementClickable(login_page.login_btn, 10);
+			login_page.click_login();
+			test.pass("User clicks on the login button.");
 
-    // ✅ Step 4: Validate homepage
-    @Then("User should be redirected to the homepage")
-    public void user_should_be_redirected_to_the_homepage() {
-        try {
-            String expectedText = "Produ"; // visible on the homepage
-            String actualPageSource = driver.getPageSource();
+			// Handle Chrome popups (password save / notifications)
+			try {
+				Notifications();
+			} catch (Exception ne) {
+				test.info("No browser popup appeared after login.");
+			}
 
-            if (actualPageSource.contains(expectedText)) {
-                takeScreenshot("ProductsPage");
-                test.pass("User successfully redirected to the homepage.");
-            } else {
-                takeScreenshot("ProductsPage_Failed");
-                test.fail("User not redirected to the homepage. Expected text not found.");
-                Assert.fail("Homepage validation failed - Expected text not found.");
-            }
+		} catch (Exception e) {
+			test.fail("Login button click failed: " + e.getMessage());
+			takeScreenshot("LoginClick_Failed");
+			Assert.fail("Login button not clicked.");
+		}
+	}
 
-        } catch (Exception e) {
-            takeScreenshot("ProductsPage_Exception");
-            test.fail("Exception occurred while verifying homepage: " + e.getMessage());
-            Assert.fail("Homepage validation failed due to exception: " + e.getMessage());
-        } 
-        
-        
-        finally {
-            flushReports();
-            driver.quit();
-        }
-    }
+	// ✅ Step 4: Validate homepage
+	@Then("User should be redirected to the homepage")
+	public void user_should_be_redirected_to_the_homepage() {
+		try {
+			String expectedText = "Product"; // visible on the homepage
+			String actualPageSource = driver.getPageSource();
+
+			if (actualPageSource.contains(expectedText)) {
+				takeScreenshot("ProductsPage");
+				test.pass("User successfully redirected to the homepage.");
+			} else {
+				takeScreenshot("ProductsPage_Failed");
+				test.fail("User not redirected to the homepage. Expected text not found.");
+				Assert.fail("Homepage validation failed - Expected text not found.");
+			}
+
+		} catch (Exception e) {
+			takeScreenshot("ProductsPage_Exception");
+			test.fail("Exception occurred while verifying homepage: " + e.getMessage());
+			Assert.fail("Homepage validation failed due to exception: " + e.getMessage());
+		}
+
+		finally {
+			flushReports();
+			// driver.quit();
+		}
+	}
 }
